@@ -39,7 +39,7 @@ import com.gigaspaces.query.IdQuery;
 import com.gigaspaces.sync.change.IncrementOperation;
 
 /**
- * Polling event container polling for {@link TokenCounter} instances and updating atomic counters accordingly.
+ * Polling event container polling for {@link Message} instances and updating atomic counters accordingly.
  * 
  * @author dotan
  */
