@@ -22,14 +22,14 @@ import com.gigaspaces.annotation.pojo.SpaceRouting;
 /**
  *  Holds the global count appearance of the token
  */
-public class GlobalCounter {
+public class Counter {
 
 	private String token;
 	private Integer counter;
 
-	public GlobalCounter(){}
+	public Counter(){}
 
-	public GlobalCounter(String token, Integer counter) {
+	public Counter(String token, Integer counter) {
 		this.token = token;
 		this.counter = counter;
 	}

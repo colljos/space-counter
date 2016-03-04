@@ -16,8 +16,8 @@
 
 package org.openspaces.example.counter.processor;
 
-import org.openspaces.example.counter.common.GlobalCounter;
-import org.openspaces.example.counter.common.TokenCounter;
+import java.util.logging.Logger;
+
 import org.openspaces.core.GigaSpace;
 import org.openspaces.events.EventDriven;
 import org.openspaces.events.EventTemplate;
@@ -27,6 +27,8 @@ import org.openspaces.events.polling.Polling;
 import org.openspaces.events.polling.ReceiveHandler;
 import org.openspaces.events.polling.receive.MultiTakeReceiveOperationHandler;
 import org.openspaces.events.polling.receive.ReceiveOperationHandler;
+import org.openspaces.example.counter.common.Counter;
+import org.openspaces.example.counter.common.Message;
 
 import com.gigaspaces.client.ChangeModifiers;
 import com.gigaspaces.client.ChangeOperationResult;
@@ -36,9 +38,6 @@ import com.gigaspaces.client.ChangedEntryDetails;
 import com.gigaspaces.query.IdQuery;
 import com.gigaspaces.sync.change.IncrementOperation;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Polling event container polling for {@link TokenCounter} instances and updating atomic counters accordingly.
  * 
@@ -47,8 +46,8 @@ import java.util.logging.Logger;
 @EventDriven
 @Polling(gigaSpace = "gigaSpace", concurrentConsumers = 1, maxConcurrentConsumers = 1)
 @TransactionalEvent
-public class GlobalTokenCounter {
-    private static final Logger log = Logger.getLogger(GlobalTokenCounter.class.getName());
+public class MessageCounter {
+    private static final Logger log = Logger.getLogger(MessageCounter.class.getName());
     private static final int BATCH_SIZE = 100;
 
 
@@ -60,36 +59,31 @@ public class GlobalTokenCounter {
     }
 
     @EventTemplate
-    TokenCounter tokenCounter() {
-        return new TokenCounter();
+    Message message() {
+        return new Message();
     }
 
     @SpaceDataEvent
-    public void eventListener(TokenCounter counter,GigaSpace gigaSpace) {
-    	log.info("GlobalTokenCounter processing " +counter.getToken());
-    	IdQuery<GlobalCounter> counterIdQuery = new IdQuery<GlobalCounter>(GlobalCounter.class, counter.getToken());
-    	ChangeResult<GlobalCounter> changeResult = gigaSpace.change(counterIdQuery, new ChangeSet().increment("counter", 1), ChangeModifiers.RETURN_DETAILED_RESULTS);
+    public void eventListener(Message message,GigaSpace gigaSpace) {
+
+    	IdQuery<Counter> counterIdQuery = new IdQuery<Counter>(Counter.class, message.getInfo());
+    	ChangeResult<Counter> changeResult = gigaSpace.change(counterIdQuery, new ChangeSet().increment("counter", 1), ChangeModifiers.RETURN_DETAILED_RESULTS);
     	//No counter for this token already exists - lets create a new one
     	if (changeResult.getNumberOfChangedEntries() == 0) {
-        	log.info("Creating new global counter for " +counter.getToken());    		
-    		gigaSpace.write(new GlobalCounter(counter.getToken(),counter.getCounter()));
+        	log.info("Creating new counter for " + message.getInfo());    		
+    		gigaSpace.write(new Counter(message.getInfo(), 1));
     	}
     	else {
-    		log.info("Updating global counter for " +counter.getToken());
     		
-    	 	for(ChangedEntryDetails<GlobalCounter> changedEntryDetails : changeResult.getResults()) {
+    	 	for(ChangedEntryDetails<Counter> changedEntryDetails : changeResult.getResults()) {
     	 		//Will get the first change which was applied to an entry, in our case we did only single increment so we will have only one change operation.
     	 		//The order is corresponding to the order of operation applied on the ChangeSet.
     	 		ChangeOperationResult operationResult = changedEntryDetails.getChangeOperationsResults().get(0);
     	 		Number newValue = IncrementOperation.getNewValue(operationResult);
-    	   		log.info("Global counter for " +counter.getToken() + " is <" + newValue + ">");   	 		
+    	   		log.info("Updating counter for " + message.getInfo() + " to <" + newValue + ">");   	 		
     	 	}
     	}
     	
-        if (log.isLoggable(Level.FINE)) {
-            log.fine("+++ token=" + counter.getToken() + " counter=" + counter.getCounter());
-        }
     }
-
 
 }

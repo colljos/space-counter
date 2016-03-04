@@ -37,30 +37,5 @@
     <os-core:giga-space id="gigaSpace" space="space" tx-manager="transactionManager"/>
     
     <os-core:giga-space id="clusteredGigaSpace" space="space" tx-manager="transactionManager" clustered="true"/>
-
-    <!--
-        The processor bean
-    -->
-    <bean id="counterProcessor" class="org.openspaces.example.counter.processor.Processor"/>
-
-    <!--
-        A Polling Container bean that performs repeated take operations from the space of objects matching a defined template.
-        (The take operations are by default blocking, which means a single take operation is waiting until a match is found)   
-        The template here instructs the polling container to take objects of type Message with their "info" attribute set to "Hello ".
-        When a match is found, the object is taken and passed to a listener bean - here the listener is the previously defined Processor bean.
-        This bean has the method processMessage(), which is invoked on the taken object, retuning a processed object.
-        After the object is processed, it is written back to the space by the Polling Container. 
-    -->
-    <os-events:polling-container id="counterProcessorPollingEventContainer" giga-space="gigaSpace">
-    <os-events:tx-support tx-manager="transactionManager"/>
-    <os-core:template>
-        <bean class="org.openspaces.example.counter.common.Message"/>
-    </os-core:template>
-    <os-events:listener>
-        <os-events:annotation-adapter>
-            <os-events:delegate ref="counterProcessor"/>
-        </os-events:annotation-adapter>
-    </os-events:listener>
-</os-events:polling-container>
     
 </beans>
