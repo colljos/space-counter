@@ -22,6 +22,7 @@ Components are deployed in a Unicast environment by specifying:
 -Dcom.gs.jini_lus.locators=colljos-DELLXPS:4174 -Dcom.gs.multicast.enabled=false
 
 XAP Standalone deployment and testing:
+mvn clean package
 start /min gs-agent.bat
 gs deploy ..\processor\target\space-counter-processor1.0.jar
 gs deploy ..\feeder\target\space-counter-feeder1.0
