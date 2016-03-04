@@ -10,7 +10,6 @@ Create an application that writes and counts Data Item entries into the Gigaspac
 
 Solution
 The solution demonstrates feeding in data items (Premiership football team names) into the system , then processing them in realtime, calculating counters for realtime analysis, using GigaSpaces XAP.
-
 The solution utilises 2 processing units (Feeder, Processor), 3 operations (write, take, change) and 2 Data Types (Message, Counter). The Change operation also returns details of the change made for reporting purposes (using ChangeModifiers.RETURN_DETAILED_RESULTS).
 
 Deployment
@@ -24,8 +23,8 @@ Components are deployed in a Unicast environment by specifying:
 XAP Standalone deployment and testing:
 mvn clean package
 start /min gs-agent.bat
-gs deploy ..\processor\target\space-counter-processor1.0.jar
-gs deploy ..\feeder\target\space-counter-feeder1.0
+gs deploy ..\examples\space-counter\processor\target\space-counter-processor-1.0.jar
+gs deploy ..\examples\space-counter\feeder\target\space-counter-feeder1.0
 
 Operational
 Once the application is running, you can use the XAP UI tools to view your application , access the data and the counters and manage the application. For example, you can obtain an ordered list of all entries in the IMDG, by issuing the following Query: 
